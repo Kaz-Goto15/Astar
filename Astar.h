@@ -7,6 +7,16 @@ using std::vector;
 class Astar
 {
 private:
+	enum DIRECTION {
+		DIR_N,
+		DIR_W,
+		DIR_S,
+		DIR_E,
+		DIR_NW,
+		DIR_SW,
+		DIR_NE,
+		DIR_SE,
+	};
 	struct NODE {
 		NODE* parent = nullptr;
 		POINT position = { -1, -1 };
