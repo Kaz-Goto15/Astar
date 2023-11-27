@@ -29,9 +29,12 @@ private:
 				this->position.y == node.position.y);
 		}
 	};
+	void Result();
 	string pathStr;	//ƒpƒX‚ðstring‚Å‹L˜^
 	vector<vector<int>> map;
 	POINT startPt, endPt;
+	bool isGoal_;
+	bool enDiagonal = false;
 public:
 	Astar();
 	~Astar();

@@ -1,10 +1,14 @@
 #include "Astar.h"
+#include <iostream>
+using std::cout;
+using std::endl;
 
 Astar::Astar():
 	pathStr(""),
 	map(0),
 	startPt({-1,-1}),
-	endPt({-1,-1})
+	endPt({-1,-1}),
+	isGoal_(false)
 {
 }
 
@@ -27,46 +31,54 @@ void Astar::Run()
 	NODE endNode;
 	endNode.position = endPt;
 
-	//OPENリスト、CLOSEリスト　OPENリストにスタートノードを追加
+	//OPENリスト、CLOSEリスト作成・OPENリストにスタートノードを追加
 	vector<NODE> openList;
 	vector<NODE> closeList;
 	openList.push_back(startNode);
 
 	//OPENリストが空になるまで
-	while (openList.size() > 0){
-		//現在調べているノードを取得 OPENリストでF値が一番小さいノードを選ぶ
-		NODE currentNode = openList[0];
+	while (openList.size() > 0) {
+		//OPENリスト内でF値が一番小さいノードを選ぶ
+		NODE currentNode = openList[0];	//とりあえず0番目
 		int currentIndex = 0;
-
-		//for (NODE& n : openList) {
-		//	if (n.f < currentNode.f) {
-		//		currentNode = n;
-		//		
-		//	}
-		//}
 		for (int i = 0; i < openList.size(); i++) {
 			if (openList[i].f < currentNode.f) {
 				currentNode = openList[i];
 				currentIndex = i;
 			}
 		}
+
 		//選択した最小F値ノードをOPENリストから削除、CLOSEリストに追加
 		closeList.push_back(openList[currentIndex]);
 		openList.erase(openList.begin() + currentIndex);
 
 		//選択ノードがゴールであれば終了
 		if (currentNode == endNode) {
-			//////////////////////////////////
-			//
-			//  パス表示（親ノードをたどる））
-			//
-			//////////////////////////////////
+			isGoal_ = true;
 			break;
 		}
 
 		//以降はゴールでないときの処理
+		if (enDiagonal) {
+			//斜めあり
+		}
+		else {
+			//斜めなし
+		}
 	}
 
+	Result();
+}
+
+void Astar::Result() {
+	if (isGoal_) {
+		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// ゴールノードの親ノードを辿っていき、スタートノードに戻るまで親を辿っていく。各ノード位置を逆順(reverse)にすると欲しい経路が出る //
+		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	}
+	else {
+		cout << "ゴール不可能" << endl;
+	}
 }
 
 /*
