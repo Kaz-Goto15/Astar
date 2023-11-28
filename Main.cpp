@@ -1,6 +1,6 @@
 #include <iostream>
 #include "Astar.h"
-#include <Windows.h>
+//#include <Windows.h>
 #include <vector>
 using std::vector;
 using std::cout;
@@ -13,8 +13,8 @@ int main() {
         {0, 0, 0, 1, 0},
         {0, 1, 0, 1, 0},
         {0, 0, 1, 1, 0}};
-    POINT start = { 2, 2 };
-    POINT end = { 4,4 };
+    Astar::POINT start = { 2, 2 };
+    Astar::POINT end = { 4,4 };
     Astar astar;
     astar.Init(map, start, end);
     astar.Run();

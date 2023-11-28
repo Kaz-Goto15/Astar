@@ -1,7 +1,36 @@
 #include "Astar.h"
 #include <iostream>
+#include <Windows.h>
 using std::cout;
 using std::endl;
+
+Astar::POINT Astar::Dir2Value(DIRECTION dir)
+{
+	switch (dir){
+	case Astar::DIR_N:	return {  0,-1 };
+	case Astar::DIR_W:	return { -1, 0 };
+	case Astar::DIR_S:	return {  0, 1 };
+	case Astar::DIR_E:	return {  0, 1 };
+	case Astar::DIR_NW:	return { -1,-1 };
+	case Astar::DIR_SW:	return { -1, 1 };
+	case Astar::DIR_NE:	return {  1,-1 };
+	case Astar::DIR_SE:	return {  1, 1 };
+	default:			exit(3);
+	}
+}
+
+bool Astar::between(int val, int min, int max)
+{
+	if (val >= min && val <= max)return true;
+	return false;
+}
+
+bool Astar::IsValidPoint(POINT tgt)
+{
+	if (between(tgt.x, 0, mapRange.x) &&
+		between(tgt.y, 0, mapRange.y))return true;
+	return false;
+}
 
 Astar::Astar():
 	pathStr(""),
@@ -21,6 +50,9 @@ void Astar::Init(vector<vector<int>> m, POINT s, POINT e)
 	map = m;
 	startPt = s;
 	endPt = e;
+	mapRange.x = m[0].size();
+	mapRange.y = m.size();
+	cout << "TEST: mapRange:" << mapRange.x << "," << mapRange.y << endl;
 }
 
 void Astar::Run()
@@ -59,8 +91,34 @@ void Astar::Run()
 		}
 
 		//以降はゴールでないときの処理
+		
+		//現在ノードに対して移動可能な4方向ノード（上下左右）、斜め移動をＯＫとするなら8方向ノード（上下左右＋斜め4方向）の子ノードに対し、
+		//移動不可能位置 or クローズリストにあるなら無視、それ以外なら次の手順を実行
+		//オープンリストになければ追加する。その際現在ノードを子ノードの親に設定する。
+		//そして子ノードのF, G, H値を計算する。
+		//オープンリストに同じ子ノード（同じ位置）が既にあれば、
+		//G値を比較してより良い経路かどうか（G値が小さいかどうか）確認する。
+		//小さいG値はより良い経路を意味します。
+		//もし、同じ子ノードでより小さいG値であれば、親ノードを現在ノードに設定する。
 		if (enDiagonal) {
 			//斜めあり
+			for (DIRECTION d = static_cast<DIRECTION>(0); d < DIR_MAX; d = static_cast<DIRECTION>(d + 1)) {
+				POINT targetPoint = currentNode.position + Dir2Value(d);
+				//MAP範囲内で
+				if (IsValidPoint(targetPoint)) {
+					//移動可能かつクローズリストになければ
+					if (
+						(map[targetPoint.y][targetPoint.x] == 1) ||
+						(std::find(closeList.begin(), closeList.end(), targetPoint) != closeList.end())) {
+						continue;
+					}
+					else {
+						//OPENリストになければ
+						//その際現在ノードを子ノードの親に設定する。そして子ノードのF, G, H値を計算する。
+						//オープンリストに同じ子ノード（同じ位置）が既にあれば、G値を比較してより良い経路かどうか（G値が小さいかどうか）確認する。小さいG値はより良い経路を意味します。もし、同じ子ノードでより小さいG値であれば、親ノードを現在ノードに設定する。
+					}
+				}
+			}
 		}
 		else {
 			//斜めなし
