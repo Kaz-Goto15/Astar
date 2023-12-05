@@ -1,6 +1,7 @@
 #include "Astar.h"
 #include <iostream>
 #include <Windows.h>
+
 using std::cout;
 using std::endl;
 
@@ -32,12 +33,16 @@ bool Astar::IsValidPoint(POINT tgt)
 	return false;
 }
 
+
+
 Astar::Astar():
 	pathStr(""),
 	map(0),
+	mapRange({ 0,0 }),
 	startPt({-1,-1}),
 	endPt({-1,-1}),
-	isGoal_(false)
+	isGoal_(false),
+	enDiagonal(false)
 {
 }
 
@@ -45,22 +50,26 @@ Astar::~Astar()
 {
 }
 
-void Astar::Init(vector<vector<int>> m, POINT s, POINT e)
+void Astar::Init(vector<vector<int>> m, POINT s, POINT e, bool diagonal = false)
 {
+	pathStr = "";
 	map = m;
-	startPt = s;
-	endPt = e;
 	mapRange.x = m[0].size();
 	mapRange.y = m.size();
-	cout << "TEST: mapRange:" << mapRange.x << "," << mapRange.y << endl;
+	startPt = s;
+	endPt = e;
+	isGoal_ = false;
+	enDiagonal = diagonal;
+
+	//cout << "TEST: mapRange:" << mapRange.x << "," << mapRange.y << endl;
+
 }
 
 void Astar::Run()
 {
 	//スタートゴールノード初期化
-	NODE startNode;
+	NODE startNode, endNode;
 	startNode.position = startPt;
-	NODE endNode;
 	endNode.position = endPt;
 
 	//OPENリスト、CLOSEリスト作成・OPENリストにスタートノードを追加
@@ -80,7 +89,7 @@ void Astar::Run()
 			}
 		}
 
-		//選択した最小F値ノードをOPENリストから削除、CLOSEリストに追加
+		//選択した最小F値ノードをCLOSEリストに追加、OPENリストから削除
 		closeList.push_back(openList[currentIndex]);
 		openList.erase(openList.begin() + currentIndex);
 
@@ -89,39 +98,68 @@ void Astar::Run()
 			isGoal_ = true;
 			break;
 		}
+		else {
+			//以降はゴールでないときの処理
 
-		//以降はゴールでないときの処理
-		
-		//現在ノードに対して移動可能な4方向ノード（上下左右）、斜め移動をＯＫとするなら8方向ノード（上下左右＋斜め4方向）の子ノードに対し、
-		//移動不可能位置 or クローズリストにあるなら無視、それ以外なら次の手順を実行
-		//オープンリストになければ追加する。その際現在ノードを子ノードの親に設定する。
-		//そして子ノードのF, G, H値を計算する。
-		//オープンリストに同じ子ノード（同じ位置）が既にあれば、
-		//G値を比較してより良い経路かどうか（G値が小さいかどうか）確認する。
-		//小さいG値はより良い経路を意味します。
-		//もし、同じ子ノードでより小さいG値であれば、親ノードを現在ノードに設定する。
-		if (enDiagonal) {
-			//斜めあり
-			for (DIRECTION d = static_cast<DIRECTION>(0); d < DIR_MAX; d = static_cast<DIRECTION>(d + 1)) {
-				POINT targetPoint = currentNode.position + Dir2Value(d);
-				//MAP範囲内で
-				if (IsValidPoint(targetPoint)) {
-					//移動可能かつクローズリストになければ
-					if (
-						(map[targetPoint.y][targetPoint.x] == 1) ||
-						(std::find(closeList.begin(), closeList.end(), targetPoint) != closeList.end())) {
-						continue;
-					}
-					else {
-						//OPENリストになければ
-						//その際現在ノードを子ノードの親に設定する。そして子ノードのF, G, H値を計算する。
-						//オープンリストに同じ子ノード（同じ位置）が既にあれば、G値を比較してより良い経路かどうか（G値が小さいかどうか）確認する。小さいG値はより良い経路を意味します。もし、同じ子ノードでより小さいG値であれば、親ノードを現在ノードに設定する。
-					}
+			//現在ノードに対して移動可能な4方向ノード（上下左右）、斜め移動をＯＫとするなら8方向ノード（上下左右＋斜め4方向）の子ノードに対し、
+			//移動不可能位置 or クローズリストにあるなら無視、それ以外なら次の手順を実行
+			//オープンリストになければ追加する。その際現在ノードを子ノードの親に設定する。
+			//そして子ノードのF, G, H値を計算する。
+			//オープンリストに同じ子ノード（同じ位置）が既にあれば、
+			//G値を比較してより良い経路かどうか（G値が小さいかどうか）確認する。
+			//小さいG値はより良い経路を意味します。
+			//もし、同じ子ノードでより小さいG値であれば、親ノードを現在ノードに設定する。
+
+
+			//斜めアリか
+			if (enDiagonal) {
+				//斜めあり
+				for (DIRECTION d = static_cast<DIRECTION>(0); d < DIR_MAX; d = static_cast<DIRECTION>(d + 1)) {
+					//対象座標
+					POINT targetPoint = currentNode.position + Dir2Value(d);
+					//MAP範囲内、移動可能、クローズリストにないならば
+					if (IsValidPoint(targetPoint) &&
+						map[targetPoint.y][targetPoint.x] == 1 &&
+						std::find(closeList.begin(), closeList.end(), targetPoint) != closeList.end()
+						) {
+						//オープンリストになければ
+						if (std::find(openList.begin(), openList.end(), targetPoint) != openList.end()) {
+							//現在ノードを子ノードの親に設定
+							NODE targetNode;
+							targetNode.position = targetPoint;
+							targetNode.parent = &currentNode;
+
+							//子ノードのF, G, H値を計算
+							targetNode.f = 0;
+							targetNode.g = currentNode.g + 1;
+							targetNode.h = 0;
+
+							//オープンリストに同じ子ノード（同じ位置）が既にあれば、
+							//G値を比較してより良い経路かどうか（G値が小さいかどうか）確認
+							//小さいG値はより良い経路を意味します。
+							//もし、同じ子ノードでより小さいG値であれば、親ノードを現在ノードに設定する。
+
+							//子ノードをオープンリストに追加
+							openList.push_back(targetNode);
+
+						}
+						else {
+							//NODE& subNode;
+							//オープンリストに同座標の子ノードがある場合
+							
+							//G値を比較してより良い経路かどうか（G値が小さいかどうか）確認
+							//小さいG値はより良い経路を意味します。
+							//もし、同じ子ノードでより小さいG値であれば、親ノードを現在ノードに設定する。
+						}
+					} else continue;
 				}
 			}
-		}
-		else {
-			//斜めなし
+			else {
+				//斜めなし
+				for (DIRECTION d = static_cast<DIRECTION>(0); d <= DIR_E; d = static_cast<DIRECTION>(d + 1)) {
+
+				}
+			}
 		}
 	}
 

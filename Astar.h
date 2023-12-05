@@ -11,7 +11,7 @@ public:
 		int x = 0;
 		int y = 0;
 
-		void Set(int x, int z) {
+		void Set(int x, int y) {
 			this->x = x;
 			this->y = y;
 		}
@@ -49,6 +49,7 @@ public:
 
 private:
 
+
 	enum DIRECTION {
 		DIR_N,
 		DIR_W,
@@ -60,6 +61,10 @@ private:
 		DIR_SE,
 		DIR_MAX,
 	};
+
+	/// <summary>
+	/// ノード情報 equalsはノード座標が等しいかを見る
+	/// </summary>
 	struct NODE {
 		NODE* parent = nullptr;
 		POINT position = { -1, -1 };
@@ -87,21 +92,45 @@ private:
 				this->position.y == pts.y);
 		}
 	};
-	void Result();
-	string pathStr;	//パスをstringで記録
-	vector<vector<int>> map;
-	POINT mapRange;
-	POINT startPt, endPt;
-	bool isGoal_;
-	bool enDiagonal = false;
 
+	string pathStr;				//パスをstringで記録 いらないかも
+	vector<vector<int>> map;	//マップが通れるか通れないかを01指定
+	POINT mapRange;				//マップ縦横幅
+	POINT startPt, endPt;		//開始地点、終了地点
+	bool isGoal_;				//ゴールしたか
+	bool enDiagonal;			//8方向(斜め)見るか
+
+	void Result();
+
+	/// <summary>
+	/// 方向に応じて-1~1のxyを返す
+	/// </summary>
+	/// <param name="dir">方向</param>
+	/// <returns>方向に応じた-1~1xy座標</returns>
 	POINT Dir2Value(DIRECTION dir);
+
+	/// <summary>
+	/// 最小最大の間に収まっているか or２回書くのが面倒だったから
+	/// </summary>
+	/// <param name="val">値</param>
+	/// <param name="min">最小値</param>
+	/// <param name="max">最大値</param>
+	/// <returns>値が範囲内かの真偽値</returns>
 	bool between(int val, int min, int max);
+
+	/// <summary>
+	/// マップ範囲内かを返す
+	/// </summary>
+	/// <param name="tgt">座標</param>
+	/// <returns>範囲内=true</returns>
 	bool IsValidPoint(POINT tgt);
+
+	int CalcDistance(POINT p1, POINT p2);
+
 public:
 	Astar();
 	~Astar();
-	void Init(vector<vector<int>> map, POINT s, POINT e);
+	void Init(vector<vector<int>> map, POINT s, POINT e, bool diagonal);
 	void Run();
 	string GetPathStr() { return pathStr; }
 };
