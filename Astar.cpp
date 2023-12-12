@@ -28,8 +28,8 @@ bool Astar::between(int val, int min, int max)
 
 bool Astar::IsValidPoint(POINT tgt)
 {
-	if (between(tgt.x, 0, mapRange.x) &&
-		between(tgt.y, 0, mapRange.y))return true;
+	if (between(tgt.x, 0, mapRange.x-1) &&
+		between(tgt.y, 0, mapRange.y-1))return true;
 	return false;
 }
 
@@ -61,8 +61,6 @@ void Astar::Init(vector<vector<int>> m, POINT s, POINT e, bool diagonal)
 	isGoal_ = false;
 	enDiagonal = diagonal;
 
-	//cout << "TEST: mapRange:" << mapRange.x << "," << mapRange.y << endl;
-
 }
 
 void Astar::Run()
@@ -72,18 +70,14 @@ void Astar::Run()
 	startNode.position = startPt;
 	endNode.position = endPt;
 
-	//cout << "startNode:" << startNode.position.x << "," << startNode.position.y << endl;
-	//cout << "endNode:" << endNode.position.x << "," << endNode.position.y << endl;
-
-	//OPENリスト、CLOSEリスト作成・OPENリストにスタートノードを追加
+	//OPENリスト作成・OPENリストにスタートノードを追加
 	vector<NODE> openList;
-	vector<NODE> closeList;
+	//vector<NODE> closeList;
 	openList.push_back(startNode);
-
-	//cout << "openList:" << openList.size() << endl;
-
+	ShowAllNode();
 	//OPENリストが空になるまで
 	while (openList.size() > 0) {
+		ShowAllNode();
 		cout << "openList size:" << openList.size() << endl;
 		//OPENリスト内でF値が一番小さいノードを選ぶ
 		NODE currentNode = openList[0];	//とりあえず0番目
@@ -125,18 +119,18 @@ void Astar::Run()
 				cout << "TRIGGER : DIAGONAL" << endl;
 				//斜めあり
 				for (DIRECTION d = static_cast<DIRECTION>(0); d < DIR_MAX; d = static_cast<DIRECTION>(d + 1)) {
-					cout << "DIRECTION : " << d << endl;
+					cout << "DIR : " << d;
+					cout << "closeList:"; for (auto& a : closeList) { cout << "{" << a.position.x << "," << a.position.y << "}"; } cout << endl;
 					//対象座標
 					POINT targetPoint = currentNode.position + Dir2Value(d);
-					cout << "TARGET : " << targetPoint.x << "," << targetPoint.y << endl;
+					cout << " TGT : " << targetPoint.x << "," << targetPoint.y;
 					//MAP範囲内、移動可能、クローズリストにないならば
-					if (IsValidPoint(targetPoint) {
-						cout << "TRIGGER : SAFE VALID" << endl;
-					if( map[targetPoint.y][targetPoint.x] == 1){
-						cout << "TRIGGER : SAFE RANGE" << endl;
-					if( std::find(closeList.begin(), closeList.end(), targetPoint) != closeList.end()) {
-						cout << "TRIGGER : NO RESULTS CLOSE LIST" << endl;
-						cout << "TRIGGER : EXISTS" << endl;
+					if (IsValidPoint(targetPoint)) {
+						cout << "\033[38;2;0;255;0m RANGE \033[0m";
+					if( map[targetPoint.y][targetPoint.x] == 0){
+						cout << "\033[38;2;0;255;0m FLOOR \033[0m";
+					if( std::find(closeList.begin(), closeList.end(), targetPoint) == closeList.end()) {
+						cout << "\033[38;2;0;255;0m OPEN \033[38;2;255;255;0m EXISTS \033[0m" << endl;
 						NODE targetNode;
 						targetNode.position = targetPoint;
 
@@ -144,8 +138,10 @@ void Astar::Run()
 						auto result = std::find(openList.begin(), openList.end(), targetPoint);
 						//同座標がオープンリストになければ
 						if (result == openList.end()) {
+							cout << "\033[38;2;128;128;255m NOT EXISTS IN OPENLIST \033[0m";
 							//現在ノードを子ノードの親に設定
-							targetNode.parent = &currentNode;
+							//targetNode.parent = &currentNode;
+							targetNode.parent = &closeList.back();
 
 							//子ノードのF, G, H値を計算
 							targetNode.g = currentNode.g + 1;
@@ -155,24 +151,32 @@ void Astar::Run()
 							),2);
 							targetNode.f = targetNode.g + targetNode.h;
 
+							cout << "\033[38;2;99;99;255m ADD OPENLIST: {" << targetNode.position.x << "," << targetNode.position.y << "} parent:{" << targetNode.parent->position.x << "," << targetNode.parent->position.y << "} fgh: " << targetNode.f << "," << targetNode.g << "," << targetNode.h << " \033[0m" << endl;
 							//子ノードをオープンリストに追加
 							openList.push_back(targetNode);
 
 						}
 						//同座標がオープンリストにあれば
 						else {
+							cout << "\033[38;2;255;255;128m EXISTS IN OPENLIST \033[0m";
 							//G値を比較してより良い経路かどうか（G値が小さいかどうか）確認(小さいG値はより良い経路)
 							NODE& existNode = *result;
+							targetNode.g = currentNode.g + 1;
+							cout << "tgt.g: " << targetNode.g;
+							cout << " opl.g: " << existNode.g;
 							if (existNode.g > targetNode.g) {
 								//もし、同じ子ノードでより小さいG値であれば、親ノードを現在ノードに設定する。
-								existNode.parent = &currentNode;
+								//existNode.parent = &currentNode;
+								existNode.parent = &closeList.back();
+								cout << "CHANGE PARENT-> " << existNode.parent->position.x << "," << existNode.parent->position.y;
 							}
+							cout << endl;
 						}
 					}
-					else { cout << "TRIGGER : HAS CLOSE LIST" << endl; continue; }
-
-					else {
-						cout << "TRIGGER : NOT EXISTS" << endl;
+					else { cout << "\033[38;2;255;0;0m CLOSED \033[0m" << endl; continue; }
+					}else { cout << "\033[38;2;255;0;0m WALL \033[0m" << endl; continue; }
+					}else {
+						cout << "\033[38;2;255;0;0m RANGE \033[0m" << endl;
 						continue;
 					}
 				}
@@ -190,8 +194,70 @@ void Astar::Run()
 	Result();
 }
 
+void Astar::ShowAllNode()
+{
+	cout << "=========================================" << endl;
+	NODE nodes[5][5];
+	cout << "closeList:"; for (auto& a : closeList) { cout << "{" << a.position.x << "," << a.position.y << "}"; } cout << endl;
+	for (int j = 0; j < mapRange.y; j++) {
+		for (int i = 0; i < mapRange.x; i++) {
+			POINT ptr = { i,j };
+
+			auto result = std::find(closeList.begin(), closeList.end(), ptr);
+			NODE nod;
+			if (result != closeList.end()) {
+				nod = *result;
+			}
+			nodes[j][i] = nod;
+		}
+	}
+
+	for (int j = 0; j < mapRange.y; j++) {
+		for (int i = 0; i < mapRange.x; i++) {
+			cout << "+------";
+		}
+		cout << endl;
+		for (int i = 0; i < mapRange.x; i++) {
+			cout << "| f g h";
+		}
+		cout << endl;
+		for (int i = 0; i < mapRange.x; i++) {
+			cout << "| " << nodes[j][i].f << " " << nodes[j][i].g << " " << nodes[j][i].h;
+		}
+		cout << endl;
+		for (int i = 0; i < mapRange.x; i++) {
+			if (nodes[j][i].parent == nullptr) {
+				cout << "|(?, ?)";
+			}
+			else {
+				cout << "|(" << nodes[j][i].parent->position.x << ", " << nodes[j][i].parent->position.y << ")";
+			}
+		}
+		cout << endl;
+	}
+	cout << "=========================================" << endl;
+}
+
+string Astar::GetRoute(NODE& node)
+{
+	string ret = "";
+	cout << node.position.x << "," << node.position.y << endl;
+	if (node.parent != nullptr)ret += GetRoute(*node.parent);
+	return ret += "-> {" + std::to_string(node.position.x) + "," + std::to_string(node.position.y) + "}";
+}
+
 void Astar::Result() {
 	if (isGoal_) {
+		//pathStr = GetRoute(closeList.back());
+		for (int i = closeList.size() - 1; i >= 0; --i) {
+			cout << "{" << closeList[i].position.x << "," << closeList[i].position.y << "} -> {";
+			if (closeList[i].parent == nullptr){
+				cout << "?,?}\n";
+			}
+			else {
+				cout << closeList[i].parent->position.x << "," << closeList[i].parent->position.y << "}" << endl;
+			}
+		}
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// ゴールノードの親ノードを辿っていき、スタートノードに戻るまで親を辿っていく。各ノード位置を逆順(reverse)にすると欲しい経路が出る //
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

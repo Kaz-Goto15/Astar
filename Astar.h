@@ -99,9 +99,8 @@ private:
 	POINT startPt, endPt;		//開始地点、終了地点
 	bool isGoal_;				//ゴールしたか
 	bool enDiagonal;			//8方向(斜め)見るか
-
+	vector<NODE> closeList;
 	void Result();
-
 	/// <summary>
 	/// 方向に応じて-1~1のxyを返す
 	/// </summary>
@@ -127,6 +126,8 @@ private:
 
 	int CalcDistance(POINT p1, POINT p2);
 
+	string GetRoute(NODE& node);
+	void ShowAllNode();
 public:
 	Astar();
 	~Astar();
