@@ -1,7 +1,7 @@
 #include "Astar.h"
 #include <iostream>
-#include <Windows.h>
-
+//#include <Windows.h>
+#include <cmath>
 using std::cout;
 using std::endl;
 
@@ -50,7 +50,7 @@ Astar::~Astar()
 {
 }
 
-void Astar::Init(vector<vector<int>> m, POINT s, POINT e, bool diagonal = false)
+void Astar::Init(vector<vector<int>> m, POINT s, POINT e, bool diagonal)
 {
 	pathStr = "";
 	map = m;
@@ -61,7 +61,7 @@ void Astar::Init(vector<vector<int>> m, POINT s, POINT e, bool diagonal = false)
 	isGoal_ = false;
 	enDiagonal = diagonal;
 
-	//cout << "TEST: mapRange:" << mapRange.x << "," << mapRange.y << endl;
+	cout << "TEST: mapRange:" << mapRange.x << "," << mapRange.y << endl;
 
 }
 
@@ -71,6 +71,9 @@ void Astar::Run()
 	NODE startNode, endNode;
 	startNode.position = startPt;
 	endNode.position = endPt;
+
+	cout << "TEST: startNode:" << startNode.position.x << "," << startNode.position.y << endl;
+	cout << "TEST: endNode:" << endNode.position.x << "," << endNode.position.y << endl;
 
 	//OPENリスト、CLOSEリスト作成・OPENリストにスタートノードを追加
 	vector<NODE> openList;
@@ -122,34 +125,37 @@ void Astar::Run()
 						map[targetPoint.y][targetPoint.x] == 1 &&
 						std::find(closeList.begin(), closeList.end(), targetPoint) != closeList.end()
 						) {
-						//オープンリストになければ
-						if (std::find(openList.begin(), openList.end(), targetPoint) != openList.end()) {
+
+						NODE targetNode;
+						targetNode.position = targetPoint;
+
+
+						auto result = std::find(openList.begin(), openList.end(), targetPoint);
+						//同座標がオープンリストになければ
+						if (result == openList.end()) {
 							//現在ノードを子ノードの親に設定
-							NODE targetNode;
-							targetNode.position = targetPoint;
 							targetNode.parent = &currentNode;
 
 							//子ノードのF, G, H値を計算
-							targetNode.f = 0;
 							targetNode.g = currentNode.g + 1;
-							targetNode.h = 0;
-
-							//オープンリストに同じ子ノード（同じ位置）が既にあれば、
-							//G値を比較してより良い経路かどうか（G値が小さいかどうか）確認
-							//小さいG値はより良い経路を意味します。
-							//もし、同じ子ノードでより小さいG値であれば、親ノードを現在ノードに設定する。
+							targetNode.h = std::pow(std::max(
+								std::abs(targetNode.position.x - startNode.position.x),
+								std::abs(targetNode.position.y - startNode.position.y)
+							),2);
+							targetNode.f = targetNode.g + targetNode.h;
 
 							//子ノードをオープンリストに追加
 							openList.push_back(targetNode);
 
 						}
+						//同座標がオープンリストにあれば
 						else {
-							//NODE& subNode;
-							//オープンリストに同座標の子ノードがある場合
-							
-							//G値を比較してより良い経路かどうか（G値が小さいかどうか）確認
-							//小さいG値はより良い経路を意味します。
-							//もし、同じ子ノードでより小さいG値であれば、親ノードを現在ノードに設定する。
+							//G値を比較してより良い経路かどうか（G値が小さいかどうか）確認(小さいG値はより良い経路)
+							NODE& existNode = *result;
+							if (existNode.g > targetNode.g) {
+								//もし、同じ子ノードでより小さいG値であれば、親ノードを現在ノードに設定する。
+								existNode.parent = &currentNode;
+							}
 						}
 					} else continue;
 				}

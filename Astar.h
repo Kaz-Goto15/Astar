@@ -130,7 +130,7 @@ private:
 public:
 	Astar();
 	~Astar();
-	void Init(vector<vector<int>> map, POINT s, POINT e, bool diagonal);
+	void Init(vector<vector<int>> map, POINT s, POINT e, bool diagonal = false);
 	void Run();
 	string GetPathStr() { return pathStr; }
 };
