@@ -11,7 +11,7 @@ Astar::POINT Astar::Dir2Value(DIRECTION dir)
 	case Astar::DIR_N:	return {  0,-1 };
 	case Astar::DIR_W:	return { -1, 0 };
 	case Astar::DIR_S:	return {  0, 1 };
-	case Astar::DIR_E:	return {  0, 1 };
+	case Astar::DIR_E:	return {  1, 0 };
 	case Astar::DIR_NW:	return { -1,-1 };
 	case Astar::DIR_SW:	return { -1, 1 };
 	case Astar::DIR_NE:	return {  1,-1 };
@@ -61,7 +61,7 @@ void Astar::Init(vector<vector<int>> m, POINT s, POINT e, bool diagonal)
 	isGoal_ = false;
 	enDiagonal = diagonal;
 
-	cout << "TEST: mapRange:" << mapRange.x << "," << mapRange.y << endl;
+	//cout << "TEST: mapRange:" << mapRange.x << "," << mapRange.y << endl;
 
 }
 
@@ -72,16 +72,19 @@ void Astar::Run()
 	startNode.position = startPt;
 	endNode.position = endPt;
 
-	cout << "TEST: startNode:" << startNode.position.x << "," << startNode.position.y << endl;
-	cout << "TEST: endNode:" << endNode.position.x << "," << endNode.position.y << endl;
+	//cout << "startNode:" << startNode.position.x << "," << startNode.position.y << endl;
+	//cout << "endNode:" << endNode.position.x << "," << endNode.position.y << endl;
 
 	//OPENリスト、CLOSEリスト作成・OPENリストにスタートノードを追加
 	vector<NODE> openList;
 	vector<NODE> closeList;
 	openList.push_back(startNode);
 
+	//cout << "openList:" << openList.size() << endl;
+
 	//OPENリストが空になるまで
 	while (openList.size() > 0) {
+		cout << "openList size:" << openList.size() << endl;
 		//OPENリスト内でF値が一番小さいノードを選ぶ
 		NODE currentNode = openList[0];	//とりあえず0番目
 		int currentIndex = 0;
@@ -91,6 +94,7 @@ void Astar::Run()
 				currentIndex = i;
 			}
 		}
+		cout << "currentNode:" << currentNode.position.x << "," << currentNode.position.y << endl;
 
 		//選択した最小F値ノードをCLOSEリストに追加、OPENリストから削除
 		closeList.push_back(openList[currentIndex]);
@@ -98,10 +102,12 @@ void Astar::Run()
 
 		//選択ノードがゴールであれば終了
 		if (currentNode == endNode) {
+			cout << "TRIGGER : GOAL" << endl;
 			isGoal_ = true;
 			break;
 		}
 		else {
+			cout << "TRIGGER : NOT GOAL" << endl;
 			//以降はゴールでないときの処理
 
 			//現在ノードに対して移動可能な4方向ノード（上下左右）、斜め移動をＯＫとするなら8方向ノード（上下左右＋斜め4方向）の子ノードに対し、
@@ -116,16 +122,21 @@ void Astar::Run()
 
 			//斜めアリか
 			if (enDiagonal) {
+				cout << "TRIGGER : DIAGONAL" << endl;
 				//斜めあり
 				for (DIRECTION d = static_cast<DIRECTION>(0); d < DIR_MAX; d = static_cast<DIRECTION>(d + 1)) {
+					cout << "DIRECTION : " << d << endl;
 					//対象座標
 					POINT targetPoint = currentNode.position + Dir2Value(d);
+					cout << "TARGET : " << targetPoint.x << "," << targetPoint.y << endl;
 					//MAP範囲内、移動可能、クローズリストにないならば
-					if (IsValidPoint(targetPoint) &&
-						map[targetPoint.y][targetPoint.x] == 1 &&
-						std::find(closeList.begin(), closeList.end(), targetPoint) != closeList.end()
-						) {
-
+					if (IsValidPoint(targetPoint) {
+						cout << "TRIGGER : SAFE VALID" << endl;
+					if( map[targetPoint.y][targetPoint.x] == 1){
+						cout << "TRIGGER : SAFE RANGE" << endl;
+					if( std::find(closeList.begin(), closeList.end(), targetPoint) != closeList.end()) {
+						cout << "TRIGGER : NO RESULTS CLOSE LIST" << endl;
+						cout << "TRIGGER : EXISTS" << endl;
 						NODE targetNode;
 						targetNode.position = targetPoint;
 
@@ -157,10 +168,17 @@ void Astar::Run()
 								existNode.parent = &currentNode;
 							}
 						}
-					} else continue;
+					}
+					else { cout << "TRIGGER : HAS CLOSE LIST" << endl; continue; }
+
+					else {
+						cout << "TRIGGER : NOT EXISTS" << endl;
+						continue;
+					}
 				}
 			}
 			else {
+				cout << "TRIGGER : NON DIAGONAL" << endl;
 				//斜めなし
 				for (DIRECTION d = static_cast<DIRECTION>(0); d <= DIR_E; d = static_cast<DIRECTION>(d + 1)) {
 

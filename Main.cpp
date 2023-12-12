@@ -16,7 +16,7 @@ int main() {
     Astar::POINT start = { 2, 2 };
     Astar::POINT end = { 4,4 };
     Astar astar;
-    astar.Init(map, start, end);
+    astar.Init(map, start, end, true);
     astar.Run();
     cout << astar.GetPathStr() << endl;
 	return 0;
