@@ -65,7 +65,7 @@ private:
 	/// <summary>
 	/// ノード情報 equalsはノード座標が等しいかを見る
 	/// </summary>
-	struct NODE {
+	typedef struct NODE {
 		NODE* parent = nullptr;
 		POINT position = { -1, -1 };
 		int score = 0;		//合計コスト(移動距離)
@@ -75,14 +75,23 @@ private:
 		int& g = cost;		//スタートから現時点までの距離
 		int& h = heuristic;	//ゴールまでの推定値
 
-		NODE operator = (const NODE& node) {
+		//NODE operator = (const NODE& node) {
+		//	this->parent = node.parent;
+		//	this->position = node.position;
+		//	this->f = node.f;
+		//	this->g = node.g;
+		//	this->h = node.h;
+		//	return node;
+		//}
+
+		void operator = (const NODE& node) {
 			this->parent = node.parent;
 			this->position = node.position;
 			this->f = node.f;
 			this->g = node.g;
 			this->h = node.h;
-			return node;
 		}
+
 		bool operator == (const NODE& node) {
 			return (this->position.x == node.position.x && 
 				this->position.y == node.position.y);
@@ -128,6 +137,8 @@ private:
 
 	string GetRoute(NODE& node);
 	void ShowAllNode();
+	void OutCloseList();
+	void GetInfo(NODE& node, string nodeName);
 public:
 	Astar();
 	~Astar();

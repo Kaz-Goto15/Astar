@@ -89,9 +89,14 @@ void Astar::Run()
 			}
 		}
 		cout << "currentNode:" << currentNode.position.x << "," << currentNode.position.y << endl;
-
+		GetInfo(currentNode, "currentNode");
+		cout << currentNode.parent << endl;
 		//選択した最小F値ノードをCLOSEリストに追加、OPENリストから削除
-		closeList.push_back(openList[currentIndex]);
+		//closeList.push_back(openList[currentIndex]);
+		closeList.push_back(currentNode);
+		closeList.back().parent = currentNode.parent;
+		cout << closeList.back().parent << endl;
+		GetInfo(closeList.back(), "cListBack");
 		openList.erase(openList.begin() + currentIndex);
 
 		//選択ノードがゴールであれば終了
@@ -119,8 +124,8 @@ void Astar::Run()
 				cout << "TRIGGER : DIAGONAL" << endl;
 				//斜めあり
 				for (DIRECTION d = static_cast<DIRECTION>(0); d < DIR_MAX; d = static_cast<DIRECTION>(d + 1)) {
-					cout << "DIR : " << d;
-					cout << "closeList:"; for (auto& a : closeList) { cout << "{" << a.position.x << "," << a.position.y << "}"; } cout << endl;
+					cout << "DIR : " << d << endl;
+					OutCloseList();
 					//対象座標
 					POINT targetPoint = currentNode.position + Dir2Value(d);
 					cout << " TGT : " << targetPoint.x << "," << targetPoint.y;
@@ -236,6 +241,38 @@ void Astar::ShowAllNode()
 		cout << endl;
 	}
 	cout << "=========================================" << endl;
+}
+
+void Astar::OutCloseList()
+{
+	cout << "closeList:";
+	for (auto& a : closeList) {
+		cout << "{" << a.position.x << "," << a.position.y << "}"
+			<< "fgh:" << a.f << "," << a.g << "," << a.h
+			<< " parent:(";
+		if (a.parent == nullptr) {
+			cout << "nullptr)";
+		}
+		else {
+			cout << a.parent->position.x << "," << a.parent->position.y << ")";
+		}
+		cout << endl << "           ";
+	}
+	cout << endl;
+}
+
+void Astar::GetInfo(NODE& node, string nodeName)
+{
+	cout << nodeName << ":{" << node.position.x << "," << node.position.y << "}"
+		<< "fgh:" << node.f << "," << node.g << "," << node.h
+		<< " parent:(";
+	if (node.parent == nullptr) {
+		cout << "nullptr)";
+	}
+	else {
+		cout << node.parent->position.x << "," << node.parent->position.y << ")";
+	}
+	cout << endl;
 }
 
 string Astar::GetRoute(NODE& node)
