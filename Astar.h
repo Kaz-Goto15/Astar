@@ -76,7 +76,7 @@ private:
 		int& h = heuristic;	//ƒS[ƒ‹‚Ü‚Å‚Ì„’è’l
 
 		NODE operator = (const NODE& node) {
-			this->parent = node.parent;
+			this->parent(node.parent);
 			this->position = node.position;
 			this->f = node.f;
 			this->g = node.g;
@@ -147,6 +147,7 @@ private:
 	string GetRoute(NODE& node);
 	void ShowAllNode();
 	void OutCloseList();
+	void OutList(vector<NODE> nodList, string nodListName);
 	void GetInfo(NODE& node, string nodeName);
 public:
 	Astar();

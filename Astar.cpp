@@ -84,11 +84,14 @@ void Astar::Run()
 	//OPENリストが空になるまで
 	while (openList.size() > 0) {
 		//ShowAllNode();
+		OutList(openList, "openList");
+		//cout << "openList size:" << openList.size() << endl;
 
-		cout << "openList size:" << openList.size() << endl;
-
+		GetInfo(openList[0], "oL0");
 		//OPENリスト内でF値が一番小さいノードを選ぶ
 		NODE currentNode = openList[0];	//とりあえず0番目
+
+		GetInfo(openList[0], "oL0");
 		int currentIndex = 0;
 		for (int i = 0; i < openList.size(); i++) {
 			if (openList[i].f < currentNode.f) {
@@ -103,11 +106,11 @@ void Astar::Run()
 
 		count++;
 		if (count >= 2)currentNode.parent = &startNode;
-		if (count >= 3)break;
+		//if (count >= 3)break;
 		//選択した最小F値ノードをCLOSEリストに追加、OPENリストから削除
 		//closeList.push_back(openList[currentIndex]);
-		openList[0].parent = &startNode;
-		closeList.push_back(openList[0]);
+		//openList[0].parent = &startNode;
+		closeList.push_back(currentNode);
 		//closeList.back().parent = cNode.parent;
 
 
@@ -162,8 +165,8 @@ void Astar::Run()
 						if (result == openList.end()) {
 							cout << "\033[38;2;128;128;255m NOT EXISTS IN OPENLIST \033[0m";
 							//現在ノードを子ノードの親に設定
-							//targetNode.parent = &currentNode;
-							targetNode.parent = &closeList.back();
+							targetNode.parent = &currentNode;
+							//targetNode.parent = &closeList.back();
 
 							//子ノードのF, G, H値を計算
 							targetNode.g = currentNode.g + 1;
@@ -264,6 +267,24 @@ void Astar::OutCloseList()
 {
 	cout << "closeList:";
 	for (auto& a : closeList) {
+		cout << "{" << a.position.x << "," << a.position.y << "}"
+			<< "fgh:" << a.f << "," << a.g << "," << a.h
+			<< " parent:(";
+		if (a.parent == nullptr) {
+			cout << "nullptr)";
+		}
+		else {
+			cout << a.parent->position.x << "," << a.parent->position.y << ")";
+		}
+		cout << endl << "          ";
+	}
+	cout << endl;
+}
+
+void Astar::OutList(vector<NODE> nodList, string nodListName)
+{
+	cout << nodListName << ":";
+	for (auto& a : nodList) {
 		cout << "{" << a.position.x << "," << a.position.y << "}"
 			<< "fgh:" << a.f << "," << a.g << "," << a.h
 			<< " parent:(";
