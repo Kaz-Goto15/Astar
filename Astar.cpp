@@ -69,16 +69,24 @@ void Astar::Run()
 	NODE startNode, endNode;
 	startNode.position = startPt;
 	endNode.position = endPt;
+	startNode.parent = &startNode;
 
 	//OPENリスト作成・OPENリストにスタートノードを追加
 	vector<NODE> openList;
-	//vector<NODE> closeList;
+
+	GetInfo(startNode, "startNode");
 	openList.push_back(startNode);
+
 	ShowAllNode();
+
+	NODE cNoode = openList[0];
+	int count = 0;
 	//OPENリストが空になるまで
 	while (openList.size() > 0) {
-		ShowAllNode();
+		//ShowAllNode();
+
 		cout << "openList size:" << openList.size() << endl;
+
 		//OPENリスト内でF値が一番小さいノードを選ぶ
 		NODE currentNode = openList[0];	//とりあえず0番目
 		int currentIndex = 0;
@@ -88,15 +96,24 @@ void Astar::Run()
 				currentIndex = i;
 			}
 		}
-		cout << "currentNode:" << currentNode.position.x << "," << currentNode.position.y << endl;
+
 		GetInfo(currentNode, "currentNode");
+		GetInfo(openList[0], "oL0");
 		cout << currentNode.parent << endl;
+
+		count++;
+		if (count >= 2)currentNode.parent = &startNode;
+		if (count >= 3)break;
 		//選択した最小F値ノードをCLOSEリストに追加、OPENリストから削除
 		//closeList.push_back(openList[currentIndex]);
-		closeList.push_back(currentNode);
-		closeList.back().parent = currentNode.parent;
+		openList[0].parent = &startNode;
+		closeList.push_back(openList[0]);
+		//closeList.back().parent = cNode.parent;
+
+
 		cout << closeList.back().parent << endl;
-		GetInfo(closeList.back(), "cListBack");
+		GetInfo(openList[0], "oL0");
+
 		openList.erase(openList.begin() + currentIndex);
 
 		//選択ノードがゴールであれば終了
@@ -256,7 +273,7 @@ void Astar::OutCloseList()
 		else {
 			cout << a.parent->position.x << "," << a.parent->position.y << ")";
 		}
-		cout << endl << "           ";
+		cout << endl << "          ";
 	}
 	cout << endl;
 }

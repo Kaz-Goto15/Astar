@@ -75,6 +75,23 @@ private:
 		int& g = cost;		//スタートから現時点までの距離
 		int& h = heuristic;	//ゴールまでの推定値
 
+		NODE operator = (const NODE& node) {
+			this->parent = node.parent;
+			this->position = node.position;
+			this->f = node.f;
+			this->g = node.g;
+			this->h = node.h;
+			return node;
+		}
+
+		//void operator = (const NODE& node) {
+		//	this->parent = node.parent;
+		//	this->position = node.position;
+		//	this->f = node.f;
+		//	this->g = node.g;
+		//	this->h = node.h;
+		//}
+
 		//NODE operator = (const NODE& node) {
 		//	this->parent = node.parent;
 		//	this->position = node.position;
@@ -83,14 +100,6 @@ private:
 		//	this->h = node.h;
 		//	return node;
 		//}
-
-		void operator = (const NODE& node) {
-			this->parent = node.parent;
-			this->position = node.position;
-			this->f = node.f;
-			this->g = node.g;
-			this->h = node.h;
-		}
 
 		bool operator == (const NODE& node) {
 			return (this->position.x == node.position.x && 
