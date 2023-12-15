@@ -69,7 +69,7 @@ void Astar::Run()
 	NODE startNode, endNode;
 	startNode.position = startPt;
 	endNode.position = endPt;
-	startNode.parent = &startNode;
+	//startNode.parent = &startNode;
 
 	//OPENリスト作成・OPENリストにスタートノードを追加
 	vector<NODE> openList;
@@ -89,7 +89,8 @@ void Astar::Run()
 
 		GetInfo(openList[0], "oL0");
 		//OPENリスト内でF値が一番小さいノードを選ぶ
-		NODE currentNode = openList[0];	//とりあえず0番目
+		NODE currentNode;
+		currentNode = openList[0];	//とりあえず0番目
 
 		GetInfo(openList[0], "oL0");
 		int currentIndex = 0;
@@ -106,7 +107,7 @@ void Astar::Run()
 
 		count++;
 		if (count >= 2)currentNode.parent = &startNode;
-		//if (count >= 3)break;
+		if (count >= 3)break;
 		//選択した最小F値ノードをCLOSEリストに追加、OPENリストから削除
 		//closeList.push_back(openList[currentIndex]);
 		//openList[0].parent = &startNode;

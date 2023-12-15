@@ -67,7 +67,7 @@ private:
 	/// </summary>
 	typedef struct NODE {
 		NODE* parent = nullptr;
-		POINT position = { -1, -1 };
+		POINT position;// = { -10, -1 };
 		int score = 0;		//合計コスト(移動距離)
 		int cost = 0;		//スタートから現時点までの距離
 		int heuristic = 0;	//ゴールまでの推定値
@@ -75,13 +75,13 @@ private:
 		int& g = cost;		//スタートから現時点までの距離
 		int& h = heuristic;	//ゴールまでの推定値
 
-		NODE operator = (const NODE& node) {
-			this->parent(node.parent);
+		void operator = (const NODE& node) {
+			this->parent = node.parent;
 			this->position = node.position;
 			this->f = node.f;
 			this->g = node.g;
 			this->h = node.h;
-			return node;
+			//return *this;
 		}
 
 		//void operator = (const NODE& node) {
