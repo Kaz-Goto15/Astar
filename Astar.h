@@ -4,6 +4,7 @@ using std::string;
 #include <vector>
 using std::vector;
 //#include <Windows.h>
+
 class Astar
 {
 public:
@@ -48,8 +49,6 @@ public:
 	};
 
 private:
-
-
 	enum DIRECTION {
 		DIR_N,
 		DIR_W,
@@ -66,7 +65,8 @@ private:
 	/// ノード情報 equalsはノード座標が等しいかを見る
 	/// </summary>
 	typedef struct NODE {
-		NODE* parent = nullptr;
+		int ID = -1;
+		int parentID = -1;	//親をID管理すると...?
 		POINT position;// = { -10, -1 };
 		int score = 0;		//合計コスト(移動距離)
 		int cost = 0;		//スタートから現時点までの距離
@@ -76,7 +76,7 @@ private:
 		int& h = heuristic;	//ゴールまでの推定値
 
 		void operator = (const NODE& node) {
-			this->parent = node.parent;
+			this->parentID = node.parentID;
 			this->position = node.position;
 			this->f = node.f;
 			this->g = node.g;
@@ -102,7 +102,7 @@ private:
 		//}
 
 		bool operator == (const NODE& node) {
-			return (this->position.x == node.position.x && 
+			return (this->position.x == node.position.x &&
 				this->position.y == node.position.y);
 		}
 		bool operator == (const POINT& pts) {
@@ -144,16 +144,27 @@ private:
 
 	int CalcDistance(POINT p1, POINT p2);
 
-	string GetRoute(NODE& node);
+	string GetRoute(int nodeID);
 	void ShowAllNode();
 	void OutCloseList();
 	void OutList(vector<NODE> nodList, string nodListName);
 	void GetInfo(NODE& node, string nodeName);
+
+	enum COLOR_SEQ {
+		RED,
+		LIME,
+		BLUE,
+		YELLOW,
+		BEIGE,
+		CYAN,
+		DEFAULT,
+	};
+	string OutStrColor(string str = "", COLOR_SEQ color = DEFAULT);
 public:
 	Astar();
 	~Astar();
 	void Init(vector<vector<int>> map, POINT s, POINT e, bool diagonal = false);
 	void Run();
 	string GetPathStr() { return pathStr; }
+	void ShowMap();
 };
-

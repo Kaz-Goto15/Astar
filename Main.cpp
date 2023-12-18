@@ -13,12 +13,13 @@ int main() {
         {0, 0, 0, 1, 0},
         {0, 1, 0, 1, 0},
         {0, 0, 1, 1, 0}};
-    Astar::POINT start = { 2, 2 };
+    Astar::POINT start = { 0, 2 };
     Astar::POINT end = { 4,4 };
     Astar astar;
     astar.Init(map, start, end, true);
     astar.Run();
     cout << astar.GetPathStr() << endl;
+    astar.ShowMap();
 	return 0;
 }
 
