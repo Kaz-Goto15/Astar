@@ -71,9 +71,9 @@ private:
 		int score = 0;		//合計コスト(移動距離)
 		int cost = 0;		//スタートから現時点までの距離
 		int heuristic = 0;	//ゴールまでの推定値
-		int& f = score;		//合計コスト(移動距離)
-		int& g = cost;		//スタートから現時点までの距離
-		int& h = heuristic;	//ゴールまでの推定値
+		int& f = this->score;		//合計コスト(移動距離)
+		int& g = this->cost;		//スタートから現時点までの距離
+		int& h = this->heuristic;	//ゴールまでの推定値
 
 		void operator = (const NODE& node) {
 			this->parentID = node.parentID;
@@ -118,6 +118,7 @@ private:
 	bool isGoal_;				//ゴールしたか
 	bool enDiagonal;			//8方向(斜め)見るか
 	vector<NODE> closeList;
+	vector<int> pathID;
 	void Result();
 	/// <summary>
 	/// 方向に応じて-1~1のxyを返す
@@ -146,6 +147,7 @@ private:
 
 	string GetRoute(int nodeID);
 	void ShowAllNode();
+	void CalcPath(int nodeID, vector<int>& pathArr);
 	void OutCloseList();
 	void OutList(vector<NODE> nodList, string nodListName);
 	void GetInfo(NODE& node, string nodeName);

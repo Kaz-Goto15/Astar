@@ -54,29 +54,32 @@ string Astar::OutStrColor(string str, COLOR_SEQ color)
 void Astar::ShowMap()
 {
 	enum ENUM_STRID {
+		FLOOR,
+		WALL,
+		PATH,
 		START,
 		END,
-		WALL,
-		FLOOR,
-		PATH,
 		MAX
 	};
 	string s[ENUM_STRID::MAX] = {
-		"Çr","Çd","Å°","Å@", "Å†"
+		"Å@","Å°","Å†","Çr","Çd"
 	};
+
+	vector<vector<int>> mapData = map;
+	vector<int> pathList;
+	CalcPath(closeList.size() - 1, pathList);
+	for (int& id : pathList) {
+		mapData[closeList[id].position.y][closeList[id].position.x] = PATH;
+	}
+	mapData[startPt.y][startPt.x] = START;
+	mapData[endPt.y][endPt.x] = END;
+
 	for (int h = 0; h < mapRange.y; h++) {
 		for (int w = 0; w < mapRange.x; w++) {
-			if (map[h][w] == 1) {
-				cout << s[WALL];
-				continue;
-			}
-			else {
-				//if()
-			}
+			cout << s[mapData[h][w]];
 		}
 		cout << endl;
 	}
-
 
 }
 
@@ -332,6 +335,14 @@ void Astar::OutList(vector<NODE> nodList, string nodListName)
 	cout << endl;
 }
 
+void Astar::CalcPath(int nodeID, vector<int>& pathArr)
+{
+	pathArr.push_back(nodeID);
+	NODE node = closeList[nodeID];
+	if (node.parentID != -1) CalcPath(node.parentID, pathArr);
+
+}
+
 void Astar::GetInfo(NODE& node, string nodeName)
 {
 	cout << nodeName << ":{" << node.position.x << "," << node.position.y << "}"
@@ -348,6 +359,7 @@ void Astar::GetInfo(NODE& node, string nodeName)
 
 string Astar::GetRoute(int nodeID)
 {
+	pathID.push_back(nodeID);
 	string ret = "";
 	NODE node = closeList[nodeID];
 	cout << node.position.x << "," << node.position.y << endl;
