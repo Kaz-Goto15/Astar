@@ -1,10 +1,4 @@
-#include <iostream>
 #include "Astar.h"
-//#include <Windows.h>
-#include <vector>
-using std::vector;
-using std::cout;
-using std::endl;
 
 int main() {
     vector<vector<int>> map = {
@@ -12,14 +6,57 @@ int main() {
         {0, 0, 0, 1, 0},
         {0, 0, 0, 1, 0},
         {0, 1, 0, 1, 0},
-        {0, 0, 1, 1, 0}};
+        {0, 0, 1, 1, 0} };
     Astar::POINT start = { 0, 2 };
     Astar::POINT end = { 4,4 };
+//    vector<vector<int>> map = {
+//{FLOOR,FLOOR,FLOOR,FLOOR, WALL,FLOOR,FLOOR,FLOOR,FLOOR,FLOOR, WALL,FLOOR,FLOOR},
+//{FLOOR,FLOOR,FLOOR,FLOOR,FLOOR,FLOOR, WALL, WALL, WALL,FLOOR,FLOOR,FLOOR, WALL},
+//{FLOOR, WALL,FLOOR,FLOOR, WALL,FLOOR,FLOOR,FLOOR, WALL,FLOOR, WALL,FLOOR, WALL},
+//{FLOOR,FLOOR,FLOOR, WALL, WALL, WALL, WALL, WALL, WALL,FLOOR, WALL,FLOOR, WALL},
+//{FLOOR, WALL,FLOOR,FLOOR, WALL,FLOOR,FLOOR,FLOOR,FLOOR,FLOOR, WALL,FLOOR, WALL},
+//{FLOOR,FLOOR, WALL,FLOOR, WALL, WALL, WALL, WALL, WALL, WALL, WALL,FLOOR, WALL},
+//{FLOOR,FLOOR, WALL,FLOOR, WALL,FLOOR,FLOOR, WALL,FLOOR,FLOOR, WALL,FLOOR, WALL},
+//{FLOOR, WALL,FLOOR,FLOOR, WALL,FLOOR,FLOOR,FLOOR,FLOOR,FLOOR,FLOOR,FLOOR, WALL} };
+//    Astar::POINT start = { 0, 7 };
+//    Astar::POINT end = { 5,6 };
+//    vector<vector<int>> map = {
+//    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+//    { 1,0,0,0,0,0,0,0,1,0,0,0,1 },
+//    { 1,1,1,1,1,0,1,0,1,1,1,0,1 },
+//    { 1,0,0,0,0,0,1,0,0,0,1,0,1 },
+//    { 1,0,1,1,1,1,1,1,1,0,1,0,1 },
+//    { 1,0,0,0,1,0,0,0,1,0,0,0,1 },
+//    { 1,1,1,0,1,0,1,0,1,1,1,1,1 },
+//    { 1,0,0,0,1,0,1,0,1,0,0,0,1 },
+//    { 1,0,1,1,1,0,1,0,1,1,1,0,1 },
+//    { 1,0,1,0,0,0,1,0,0,0,1,0,1 },
+//    { 1,0,1,0,1,1,1,1,1,0,1,0,1 },
+//    { 1,0,1,0,0,0,1,0,0,0,1,0,1 },
+//    { 1,0,1,1,1,0,1,1,1,1,1,0,1 },
+//    { 1,0,0,0,0,0,1,0,0,0,1,0,1 },
+//    { 1,0,1,1,1,1,1,1,1,0,1,0,1 },
+//    { 1,0,0,0,0,0,0,0,1,0,0,0,1 },
+//    { 1,0,1,1,1,1,1,0,1,1,1,0,1 },
+//    { 1,0,1,0,0,0,1,0,0,0,1,0,1 },
+//    { 1,0,1,0,1,1,1,0,1,1,1,0,1 },
+//    { 1,0,0,0,1,0,0,0,1,0,0,0,1 },
+//    { 1,1,1,1,1,0,1,1,1,0,1,1,1 },
+//    { 1,0,1,0,0,0,1,0,1,0,0,0,1 },
+//    { 1,0,1,0,1,0,1,0,1,1,1,0,1 },
+//    { 1,0,0,0,1,0,0,0,0,0,0,0,1 },
+//    { 1,1,1,1,1,1,1,1,1,1,1,1,1 }
+//};
+//    Astar::POINT start = { 1, 1 };
+//    Astar::POINT end = { 11,23 };
     Astar astar;
     astar.Init(map, start, end, true);
+    astar.IsDebugMsg(false);
     astar.Run();
-    cout << astar.GetPathStr() << endl;
-    astar.ShowMap();
+
+    astar.DrawInfoTable();
+    astar.DrawMap();
+    astar.DrawPath();
 	return 0;
 }
 

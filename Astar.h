@@ -1,9 +1,18 @@
 #pragma once
 #include <string>
-using std::string;
 #include <vector>
+
+using std::string;
 using std::vector;
-//#include <Windows.h>
+
+enum NODE_ATTRIBUTE {
+	FLOOR,
+	WALL,
+	PATH,
+	START,
+	END,
+	MAX
+};
 
 class Astar
 {
@@ -48,7 +57,19 @@ public:
 
 	};
 
+	Astar();
+	~Astar();
+	void Init(vector<vector<int>> map, POINT s, POINT e, bool diagonal = false);
+	void Run();
+	string GetPathStr() { return pathStr; }
+	void DrawInfoTable();
+	void DrawPath();
+	void DrawMap();
+
+	void IsDebugMsg(bool b) { debug = b; }
 private:
+	string Attribute2Str(NODE_ATTRIBUTE id);
+
 	enum DIRECTION {
 		DIR_N,
 		DIR_W,
@@ -61,19 +82,14 @@ private:
 		DIR_MAX,
 	};
 
-	/// <summary>
-	/// ノード情報 equalsはノード座標が等しいかを見る
-	/// </summary>
+	// 各ノードの情報	Equalsは座標が等しいかを見る
 	typedef struct NODE {
-		int ID = -1;
-		int parentID = -1;	//親をID管理すると...?
-		POINT position;// = { -10, -1 };
-		int score = 0;		//合計コスト(移動距離)
-		int cost = 0;		//スタートから現時点までの距離
-		int heuristic = 0;	//ゴールまでの推定値
-		int& f = this->score;		//合計コスト(移動距離)
-		int& g = this->cost;		//スタートから現時点までの距離
-		int& h = this->heuristic;	//ゴールまでの推定値
+		int ID = -1;				//nullを-1とするためここも-1にする 親があるとき初めて0以上になる
+		int parentID = -1;			//親をID管理
+		POINT position = { -1,-1 };	//座標
+		int f = 0;					//合計コスト(移動距離) score
+		int g = 0;					//スタートから現時点までの距離 cost
+		int h = 0;					//ゴールまでの推定値 heuristic
 
 		void operator = (const NODE& node) {
 			this->parentID = node.parentID;
@@ -81,25 +97,7 @@ private:
 			this->f = node.f;
 			this->g = node.g;
 			this->h = node.h;
-			//return *this;
 		}
-
-		//void operator = (const NODE& node) {
-		//	this->parent = node.parent;
-		//	this->position = node.position;
-		//	this->f = node.f;
-		//	this->g = node.g;
-		//	this->h = node.h;
-		//}
-
-		//NODE operator = (const NODE& node) {
-		//	this->parent = node.parent;
-		//	this->position = node.position;
-		//	this->f = node.f;
-		//	this->g = node.g;
-		//	this->h = node.h;
-		//	return node;
-		//}
 
 		bool operator == (const NODE& node) {
 			return (this->position.x == node.position.x &&
@@ -118,40 +116,36 @@ private:
 	bool isGoal_;				//ゴールしたか
 	bool enDiagonal;			//8方向(斜め)見るか
 	vector<NODE> closeList;
-	vector<int> pathID;
+	vector<int> pathList;
+	bool debug;
+
 	void Result();
-	/// <summary>
+
+
 	/// 方向に応じて-1~1のxyを返す
-	/// </summary>
-	/// <param name="dir">方向</param>
-	/// <returns>方向に応じた-1~1xy座標</returns>
 	POINT Dir2Value(DIRECTION dir);
 
-	/// <summary>
-	/// 最小最大の間に収まっているか or２回書くのが面倒だったから
-	/// </summary>
-	/// <param name="val">値</param>
-	/// <param name="min">最小値</param>
-	/// <param name="max">最大値</param>
-	/// <returns>値が範囲内かの真偽値</returns>
+	/// 最小最大の間に収まっているか 最小値最大値は含む
 	bool between(int val, int min, int max);
 
-	/// <summary>
-	/// マップ範囲内かを返す
-	/// </summary>
-	/// <param name="tgt">座標</param>
-	/// <returns>範囲内=true</returns>
+	/// マップ範囲内か
 	bool IsValidPoint(POINT tgt);
 
+	//距離計算
 	int CalcDistance(POINT p1, POINT p2);
 
-	string GetRoute(int nodeID);
-	void ShowAllNode();
+	/// <summary>
+	/// パスを記録
+	/// </summary>
+	/// <param name="nodeID">ノードID 起動時は最後のノードを指定</param>
+	/// <param name="pathArr">記録するintvector</param>
 	void CalcPath(int nodeID, vector<int>& pathArr);
-	void OutCloseList();
+
+	//以下テスト出力系
 	void OutList(vector<NODE> nodList, string nodListName);
 	void GetInfo(NODE& node, string nodeName);
 
+	//色
 	enum COLOR_SEQ {
 		RED,
 		LIME,
@@ -161,12 +155,6 @@ private:
 		CYAN,
 		DEFAULT,
 	};
+	//コンソール色変え関数
 	string OutStrColor(string str = "", COLOR_SEQ color = DEFAULT);
-public:
-	Astar();
-	~Astar();
-	void Init(vector<vector<int>> map, POINT s, POINT e, bool diagonal = false);
-	void Run();
-	string GetPathStr() { return pathStr; }
-	void ShowMap();
 };
