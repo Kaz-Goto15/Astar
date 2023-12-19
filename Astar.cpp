@@ -217,6 +217,18 @@ void Astar::DrawMap()
 	}
 }
 
+string Astar::Attribute2Str(NODE_ATTRIBUTE id)
+{
+	switch (id)
+	{
+	case NODE_ATTRIBUTE::FLOOR:	return "Å@";
+	case NODE_ATTRIBUTE::WALL:	return "Å°";
+	case NODE_ATTRIBUTE::PATH:	return "Å†";
+	case NODE_ATTRIBUTE::START:	return "Çr";
+	case NODE_ATTRIBUTE::END:	return "Çd";
+	}
+	return "â}";
+}
 
 Astar::POINT Astar::Dir2Value(DIRECTION dir)
 {
@@ -306,19 +318,6 @@ void Astar::GetInfo(NODE& node, string nodeName)
 		}
 		cout << endl;
 	}
-}
-
-string Astar::Attribute2Str(NODE_ATTRIBUTE id)
-{
-	switch (id)
-	{
-	case NODE_ATTRIBUTE::FLOOR:	return "Å@";
-	case NODE_ATTRIBUTE::WALL:	return "Å°";
-	case NODE_ATTRIBUTE::PATH:	return "Å†";
-	case NODE_ATTRIBUTE::START:	return "Çr";
-	case NODE_ATTRIBUTE::END:	return "Çd";
-	}
-	return "â}";
 }
 
 void Astar::Result() {
