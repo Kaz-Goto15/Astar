@@ -38,6 +38,11 @@ void Astar::Init(vector<vector<int>> m, POINT s, POINT e, bool diagonal)
 
 void Astar::Run()
 {
+	//斜めbool to 最大方向enum
+	DIRECTION maxDir;
+	if (enDiagonal)maxDir = DIR_MAX_8;
+	else maxDir = DIR_MAX_4;
+
 	//スタートゴールノード初期化
 	NODE startNode, endNode;
 	startNode.position = startPt;
@@ -70,143 +75,73 @@ void Astar::Run()
 
 		//選択ノードがゴールであれば終了
 		if (currentNode == endNode) {
-			if(debug)cout << "**********************END**********************" << endl;
+			if (debug)cout << "**********************END**********************" << endl;
 			isGoal_ = true;
 			break;
 		}
 		else {
 			//以降はゴールでないときの処理
-			//斜めアリか
-			if (enDiagonal) {
-				//斜めあり
-				for (DIRECTION d = static_cast<DIRECTION>(0); d < DIR_MAX; d = static_cast<DIRECTION>(d + 1)) {
-					OutList(closeList, "closeList");
-					//対象座標
-					POINT targetPoint = currentNode.position + Dir2Value(d);
-					if(debug)cout << " TGT : " << targetPoint.x << "," << targetPoint.y;
-					//MAP範囲内、移動可能、クローズリストにないならば
-					if (IsValidPoint(targetPoint)) {
-						cout << OutStrColor(" RANGE ", LIME);
-						if (map[targetPoint.y][targetPoint.x] == 0) {
-							cout << OutStrColor(" FLOOR ", LIME);
-							if (std::find(closeList.begin(), closeList.end(), targetPoint) == closeList.end()) {
-								cout << OutStrColor(" OPEN ", LIME) << OutStrColor(" EXISTS \n", YELLOW);
-								NODE targetNode;
-								targetNode.position = targetPoint;
+			for (DIRECTION d = static_cast<DIRECTION>(0); d < maxDir; d = static_cast<DIRECTION>(d + 1)) {
+				OutList(closeList, "closeList");
+				//対象座標
+				POINT targetPoint = currentNode.position + Dir2Value(d);
+				if (debug)cout << " TGT : " << targetPoint.x << "," << targetPoint.y;
+				//MAP範囲内、移動可能、クローズリストにないならば
+				if (IsValidPoint(targetPoint)) {
+					cout << OutStrColor(" RANGE ", LIME);
+					if (map[targetPoint.y][targetPoint.x] == 0) {
+						cout << OutStrColor(" FLOOR ", LIME);
+						if (std::find(closeList.begin(), closeList.end(), targetPoint) == closeList.end()) {
+							cout << OutStrColor(" OPEN ", LIME) << OutStrColor(" EXISTS \n", YELLOW);
+							NODE targetNode;
+							targetNode.position = targetPoint;
 
 
-								auto result = std::find(openList.begin(), openList.end(), targetPoint);
-								//同座標がオープンリストになければ
-								if (result == openList.end()) {
-									cout << OutStrColor(" NOT EXISTS IN OPENLIST ", CYAN);
-									//現在ノードを子ノードの親に設定
-									targetNode.parentID = currentNode.ID;
+							auto result = std::find(openList.begin(), openList.end(), targetPoint);
+							//同座標がオープンリストになければ
+							if (result == openList.end()) {
+								cout << OutStrColor(" NOT EXISTS IN OPENLIST ", CYAN);
+								//現在ノードを子ノードの親に設定
+								targetNode.parentID = currentNode.ID;
 
-									//子ノードのF, G, H値を計算
-									targetNode.g = currentNode.g + 1;
-									targetNode.h = std::pow(std::max(
-										std::abs(targetNode.position.x - startNode.position.x),
-										std::abs(targetNode.position.y - startNode.position.y)
-									), 2);
-									targetNode.f = targetNode.g + targetNode.h;
+								//子ノードのF, G, H値を計算
+								targetNode.g = currentNode.g + 1;
+								targetNode.h = std::pow(std::max(
+									std::abs(targetNode.position.x - startNode.position.x),
+									std::abs(targetNode.position.y - startNode.position.y)
+								), 2);
+								targetNode.f = targetNode.g + targetNode.h;
 
-									std::stringstream ss;
-									ss << "ADD OPENLIST : {" << targetNode.position.x << ", " << targetNode.position.y << "} parentID: {" << closeList[targetNode.parentID].position.x << ", " << closeList[targetNode.parentID].position.y << "} fgh: " << targetNode.f << ", " << targetNode.g << ", " << targetNode.h << " \033[0m" << endl;
-									cout << OutStrColor(ss.str(), BLUE);
-									//子ノードをオープンリストに追加
-									openList.push_back(targetNode);
+								std::stringstream ss;
+								ss << "ADD OPENLIST : {" << targetNode.position.x << ", " << targetNode.position.y << "} parentID: {" << closeList[targetNode.parentID].position.x << ", " << closeList[targetNode.parentID].position.y << "} fgh: " << targetNode.f << ", " << targetNode.g << ", " << targetNode.h << " \033[0m" << endl;
+								cout << OutStrColor(ss.str(), BLUE);
+								//子ノードをオープンリストに追加
+								openList.push_back(targetNode);
 
-								}
-								//同座標がオープンリストにあれば
-								else {
-									cout << OutStrColor("EXISTS IN OPENLIST", BEIGE);
-									//G値を比較してより良い経路かどうか（G値が小さいかどうか）確認(小さいG値はより良い経路)
-									NODE& existNode = *result;
-									targetNode.g = currentNode.g + 1;
-									if (debug) {
-										cout << "tgt.g: " << targetNode.g;
-										cout << " opl.g: " << existNode.g;
-									}
-									if (existNode.g > targetNode.g) {
-										//もし、同じ子ノードでより小さいG値であれば、親ノードを現在ノードに設定する。
-										existNode.parentID = currentNode.ID;
-										if(debug)cout << "CHANGE parentID-> " << closeList[existNode.parentID].position.x << "," << closeList[existNode.parentID].position.y;
-									}
-									if(debug)cout << endl;
-								}
 							}
-							else { cout << OutStrColor(" CLOSED \n", RED); continue; }
-						}
-						else { cout << OutStrColor(" WALL \n", RED); continue; }
-					}
-					else { cout << OutStrColor(" RANGE \n", RED); continue; }
-				}
-			}
-			else {
-				//斜めなし
-				for (DIRECTION d = static_cast<DIRECTION>(0); d <= DIR_E; d = static_cast<DIRECTION>(d + 1)) {
-					OutList(closeList, "closeList");
-					//対象座標
-					POINT targetPoint = currentNode.position + Dir2Value(d);
-					if (debug)cout << " TGT : " << targetPoint.x << "," << targetPoint.y;
-					//MAP範囲内、移動可能、クローズリストにないならば
-					if (IsValidPoint(targetPoint)) {
-						cout << OutStrColor(" RANGE ", LIME);
-						if (map[targetPoint.y][targetPoint.x] == 0) {
-							cout << OutStrColor(" FLOOR ", LIME);
-							if (std::find(closeList.begin(), closeList.end(), targetPoint) == closeList.end()) {
-								cout << OutStrColor(" OPEN ", LIME) << OutStrColor(" EXISTS \n", YELLOW);
-								NODE targetNode;
-								targetNode.position = targetPoint;
-
-
-								auto result = std::find(openList.begin(), openList.end(), targetPoint);
-								//同座標がオープンリストになければ
-								if (result == openList.end()) {
-									cout << OutStrColor(" NOT EXISTS IN OPENLIST ", CYAN);
-									//現在ノードを子ノードの親に設定
-									targetNode.parentID = currentNode.ID;
-
-									//子ノードのF, G, H値を計算
-									targetNode.g = currentNode.g + 1;
-									targetNode.h = std::pow(std::max(
-										std::abs(targetNode.position.x - startNode.position.x),
-										std::abs(targetNode.position.y - startNode.position.y)
-									), 2);
-									targetNode.f = targetNode.g + targetNode.h;
-
-									std::stringstream ss;
-									ss << "ADD OPENLIST : {" << targetNode.position.x << ", " << targetNode.position.y << "} parentID: {" << closeList[targetNode.parentID].position.x << ", " << closeList[targetNode.parentID].position.y << "} fgh: " << targetNode.f << ", " << targetNode.g << ", " << targetNode.h << " \033[0m" << endl;
-									cout << OutStrColor(ss.str(), BLUE);
-									//子ノードをオープンリストに追加
-									openList.push_back(targetNode);
-
+							//同座標がオープンリストにあれば
+							else {
+								cout << OutStrColor("EXISTS IN OPENLIST", BEIGE);
+								//G値を比較してより良い経路かどうか（G値が小さいかどうか）確認(小さいG値はより良い経路)
+								NODE& existNode = *result;
+								targetNode.g = currentNode.g + 1;
+								if (debug) {
+									cout << "tgt.g: " << targetNode.g;
+									cout << " opl.g: " << existNode.g;
 								}
-								//同座標がオープンリストにあれば
-								else {
-									cout << OutStrColor("EXISTS IN OPENLIST", BEIGE);
-									//G値を比較してより良い経路かどうか（G値が小さいかどうか）確認(小さいG値はより良い経路)
-									NODE& existNode = *result;
-									targetNode.g = currentNode.g + 1;
-									if (debug) {
-										cout << "tgt.g: " << targetNode.g;
-										cout << " opl.g: " << existNode.g;
-									}
-									if (existNode.g > targetNode.g) {
-										//もし、同じ子ノードでより小さいG値であれば、親ノードを現在ノードに設定する。
-										existNode.parentID = currentNode.ID;
-										if (debug)cout << "CHANGE parentID-> " << closeList[existNode.parentID].position.x << "," << closeList[existNode.parentID].position.y;
-									}
-									if (debug)cout << endl;
+								if (existNode.g > targetNode.g) {
+									//もし、同じ子ノードでより小さいG値であれば、親ノードを現在ノードに設定する。
+									existNode.parentID = currentNode.ID;
+									if (debug)cout << "CHANGE parentID-> " << closeList[existNode.parentID].position.x << "," << closeList[existNode.parentID].position.y;
 								}
+								if (debug)cout << endl;
 							}
-							else { cout << OutStrColor(" CLOSED \n", RED); continue; }
 						}
-						else { cout << OutStrColor(" WALL \n", RED); continue; }
+						else { cout << OutStrColor(" CLOSED \n", RED); continue; }
 					}
-					else { cout << OutStrColor(" RANGE \n", RED); continue; }
-
+					else { cout << OutStrColor(" WALL \n", RED); continue; }
 				}
+				else { cout << OutStrColor(" RANGE \n", RED); continue; }
 			}
 		}
 	}

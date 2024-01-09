@@ -79,7 +79,8 @@ private:
 		DIR_SW,
 		DIR_NE,
 		DIR_SE,
-		DIR_MAX,
+		DIR_MAX_8,
+		DIR_MAX_4 = DIR_NW,
 	};
 
 	// 各ノードの情報	Equalsは座標が等しいかを見る
