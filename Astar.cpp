@@ -212,6 +212,13 @@ void Astar::DrawMap()
 	}
 }
 
+void Astar::Result() {
+	if (isGoal_) {
+		CalcPath(closeList.size() - 1, pathList);
+	}
+	else { cout << "ゴール不可能" << endl; }
+}
+
 string Astar::Attribute2Str(NODE_ATTRIBUTE id)
 {
 	switch (id)
@@ -252,24 +259,11 @@ bool Astar::IsValidPoint(POINT tgt)
 	return false;
 }
 
-
-string Astar::OutStrColor(string str, COLOR_SEQ color)
+void Astar::CalcPath(int nodeID, vector<int>& pathArr)
 {
-	if (debug) {
-		string ret = "";
-		switch (color) {
-		case RED:	ret += "\033[38;2;255;0;0m"; break;
-		case LIME:	ret += "\033[38;2;0;255;0m"; break;
-		case BLUE:	ret += "\033[38;2;99;99;255m"; break;
-		case YELLOW:ret += "\033[38;2;255;255;0m"; break;
-		case BEIGE:	ret += "\033[38;2;255;255;128m"; break;
-		case CYAN:	ret += "\033[38;2;128;128;255m"; break;
-		case DEFAULT:ret += "\033[0m"; break;
-		}
-		ret += str + "\033[0m";
-		return ret;
-	}
-	return "";
+	pathArr.push_back(nodeID);
+	NODE node = closeList[nodeID];
+	if (node.parentID != -1) CalcPath(node.parentID, pathArr);
 }
 
 void Astar::OutList(vector<NODE> nodList, string nodListName)
@@ -292,13 +286,6 @@ void Astar::OutList(vector<NODE> nodList, string nodListName)
 	}
 }
 
-void Astar::CalcPath(int nodeID, vector<int>& pathArr)
-{
-	pathArr.push_back(nodeID);
-	NODE node = closeList[nodeID];
-	if (node.parentID != -1) CalcPath(node.parentID, pathArr);
-}
-
 void Astar::GetInfo(NODE& node, string nodeName)
 {
 	if (debug) {
@@ -315,9 +302,21 @@ void Astar::GetInfo(NODE& node, string nodeName)
 	}
 }
 
-void Astar::Result() {
-	if (isGoal_) {
-		CalcPath(closeList.size() - 1, pathList);
+string Astar::OutStrColor(string str, COLOR_SEQ color)
+{
+	if (debug) {
+		string ret = "";
+		switch (color) {
+		case RED:	ret += "\033[38;2;255;0;0m"; break;
+		case LIME:	ret += "\033[38;2;0;255;0m"; break;
+		case BLUE:	ret += "\033[38;2;99;99;255m"; break;
+		case YELLOW:ret += "\033[38;2;255;255;0m"; break;
+		case BEIGE:	ret += "\033[38;2;255;255;128m"; break;
+		case CYAN:	ret += "\033[38;2;128;128;255m"; break;
+		case DEFAULT:ret += "\033[0m"; break;
+		}
+		ret += str + "\033[0m";
+		return ret;
 	}
-	else { cout << "ゴール不可能" << endl; }
+	return "";
 }

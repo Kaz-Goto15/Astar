@@ -61,15 +61,12 @@ public:
 	~Astar();
 	void Init(vector<vector<int>> map, POINT s, POINT e, bool diagonal = false);
 	void Run();
-	string GetPathStr() { return pathStr; }
 	void DrawInfoTable();
 	void DrawPath();
 	void DrawMap();
 
 	void IsDebugMsg(bool b) { debug = b; }
 private:
-	string Attribute2Str(NODE_ATTRIBUTE id);
-
 	enum DIRECTION {
 		DIR_N,
 		DIR_W,
@@ -120,8 +117,12 @@ private:
 	vector<int> pathList;
 	bool debug;
 
+
+	//ゴール判定+事後処理まとめ
 	void Result();
 
+	//ノード属性表示
+	string Attribute2Str(NODE_ATTRIBUTE id);
 
 	/// 方向に応じて-1~1のxyを返す
 	POINT Dir2Value(DIRECTION dir);
@@ -131,9 +132,6 @@ private:
 
 	/// マップ範囲内か
 	bool IsValidPoint(POINT tgt);
-
-	//距離計算
-	int CalcDistance(POINT p1, POINT p2);
 
 	/// <summary>
 	/// パスを記録
