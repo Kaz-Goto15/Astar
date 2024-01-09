@@ -50,7 +50,7 @@ int main() {
 //    Astar::POINT start = { 1, 1 };
 //    Astar::POINT end = { 11,23 };
     Astar astar;
-    astar.Init(map, start, end, true);
+    astar.Init(map, start, end, false);
     astar.IsDebugMsg(false);
     astar.Run();
 
