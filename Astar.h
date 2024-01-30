@@ -116,7 +116,7 @@ private:
 	vector<NODE> closeList;
 	vector<int> pathList;
 	bool debug;
-
+	string attributeStr[MAX];
 
 	//ƒS[ƒ‹”»’è+–Œãˆ—‚Ü‚Æ‚ß
 	void Result();
